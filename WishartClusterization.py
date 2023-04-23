@@ -296,8 +296,8 @@ language = "npy" ##  "txt" or "npy"
 type = "random5newlit"
 embedding = "SVD"
 
-ks = np.array([10,15])
-hs = np.array([0.005,0.05])
+ks = np.array([1500,1600])
+hs = np.array([0.005,0.0005])
 fig, axs = plt.subplots(ncols=len(hs), nrows = len(ks), figsize=(20,20))
 
 for i in range(len(ks)):
