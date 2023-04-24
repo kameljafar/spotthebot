@@ -142,3 +142,13 @@ for epoch in range(n_epochs):
         model.eval()
         predicted_text = evaluate(model, char_to_idx, idx_to_char)
         print(predicted_text)
+
+
+
+# after training
+torch.save({
+    'epoch': n_epochs,
+    'model_state_dict': model.state_dict(),
+    'optimizer_state_dict': optimizer.state_dict(),
+    'loss': loss.item(),
+}, './geneateModel/model.pt')
