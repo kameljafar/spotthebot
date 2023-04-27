@@ -4,6 +4,17 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import os
+import re
+import glob
+import zipfile
+import pandas as pd  
+import matplotlib.pyplot as plt
+from camel_tools.utils.dediac import dediac_ar
+from camel_tools.utils.normalize import (normalize_alef_maksura_ar,normalize_alef_ar,normalize_teh_marbuta_ar)
+from camel_tools.tokenizers.word import simple_word_tokenize
+from camel_tools.disambig.mle import MLEDisambiguator
+from camel_tools.ner import NERecognizer
 
 TRAIN_TEXT_FILE_PATH = './text_file.txt'
 import re 
@@ -16,7 +27,8 @@ text_sample = ' '.join(text_sample)
 # text_sample=TRAIN_TEXT_FILE_PATH
  
 def text_to_seq(text_sample):
-    text_sample = (re.sub(r'[^0-9\u0621-\u064a\ufb50-\ufdff\ufe70-\ufefc\s]', '', text_sample).strip())
+    # text_sample = (re.sub(r'[^0-9\u0621-\u064a\ufb50-\ufdff\ufe70-\ufefc\s]', '', text_sample).strip())
+    text_sample = (re.sub(r'[^\n\t\x20-\x7E\u0621-\u064a\ufb50-\ufdff\ufe70-\ufefc]+', '', text_sample).strip())
     text_sample = (re.sub(r'ـ', '', text_sample).strip())
     # print(text_sample,"v3")
     char_counts = Counter(text_sample)
@@ -151,4 +163,52 @@ torch.save({
     'model_state_dict': model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
     'loss': loss.item(),
-}, './geneateModel/model.pt')
+}, './geneateModel/model3.pt')
+
+
+
+model.eval()
+
+### prepare text using camel tool ###
+def clean_text_with_camel_utils(text):
+    text = dediac_ar(text)
+    text = normalize_alef_maksura_ar(text)
+    text = normalize_alef_ar(text)
+    text = normalize_teh_marbuta_ar(text)
+    cleaned_text = re.sub(r'،', '', text)
+    return cleaned_text.strip()
+
+# path to the file with start_text on each line
+start_text_file = './Datasets/wordsTopromot.txt'
+
+# path to the directory where generated text files will be saved
+output_dir = './Datasets/generated_text/'
+
+# create output directory if it doesn't exist
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# iterate over lines in start_text file
+with open(start_text_file, 'r', encoding='utf-8') as f:
+    for line in f:
+        # generate text using the current line as start_text
+        text = clean_text_with_camel_utils(line.strip())
+        print(f"@@@@@@@@@@@@@@ {text} @@@@@@@@@@@@@@")
+        generated_text = evaluate(
+            model, 
+            char_to_idx, 
+            idx_to_char, 
+            temp=0.3, 
+            prediction_len=80000, 
+            start_text=text
+        )
+        
+        # save generated text to a new file
+        output_filename = f"{line.strip()[:10]}.txt"
+        output_path = os.path.join(output_dir, output_filename)
+        with open(output_path, 'w', encoding='utf-8') as outfile:
+            outfile.write(generated_text.strip())
+            
+        # print the generated text and its filename
+        print(f"Generated text saved to {output_filename}:")
+        # print(f"################### {generated_text} ###################")
