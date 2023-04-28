@@ -10,11 +10,11 @@ import glob
 import zipfile
 import pandas as pd  
 import matplotlib.pyplot as plt
-from camel_tools.utils.dediac import dediac_ar
-from camel_tools.utils.normalize import (normalize_alef_maksura_ar,normalize_alef_ar,normalize_teh_marbuta_ar)
-from camel_tools.tokenizers.word import simple_word_tokenize
-from camel_tools.disambig.mle import MLEDisambiguator
-from camel_tools.ner import NERecognizer
+# from camel_tools.utils.dediac import dediac_ar
+# from camel_tools.utils.normalize import (normalize_alef_maksura_ar,normalize_alef_ar,normalize_teh_marbuta_ar)
+# from camel_tools.tokenizers.word import simple_word_tokenize
+# from camel_tools.disambig.mle import MLEDisambiguator
+# from camel_tools.ner import NERecognizer
 
 TRAIN_TEXT_FILE_PATH = './text_file.txt'
 import re 
@@ -171,15 +171,15 @@ model.eval()
 
 ### prepare text using camel tool ###
 def clean_text_with_camel_utils(text):
-    text = dediac_ar(text)
-    text = normalize_alef_maksura_ar(text)
-    text = normalize_alef_ar(text)
-    text = normalize_teh_marbuta_ar(text)
+    # text = dediac_ar(text)
+    # text = normalize_alef_maksura_ar(text)
+    # text = normalize_alef_ar(text)
+    # text = normalize_teh_marbuta_ar(text)
     cleaned_text = re.sub(r'،', '', text)
     return cleaned_text.strip()
 
 # path to the file with start_text on each line
-start_text_file = './Datasets/wordsTopromot.txt'
+start_text_file = './Datasets/finalWordsTopromot4.txt'
 
 # path to the directory where generated text files will be saved
 output_dir = './Datasets/generated_text/'
@@ -193,7 +193,7 @@ with open(start_text_file, 'r', encoding='utf-8') as f:
     for line in f:
         # generate text using the current line as start_text
         text = clean_text_with_camel_utils(line.strip())
-        print(f"@@@@@@@@@@@@@@ {text} @@@@@@@@@@@@@@")
+        # print(f"@@@@@@@@@@@@@@ {text} @@@@@@@@@@@@@@")
         generated_text = evaluate(
             model, 
             char_to_idx, 
